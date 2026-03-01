@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\cms;
 
 use App\Http\Controllers\Controller;
+use App\Mail\EnquiryMail;
 use App\Models\Enquiry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Yajra\DataTables\Facades\DataTables;
 
 class EnquiryController extends Controller
@@ -18,7 +20,7 @@ class EnquiryController extends Controller
             if ($request->order == null) {
                 $data->orderBy('enquiries.created_at', 'desc');
             }
-            
+
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->make(true);
@@ -39,6 +41,8 @@ class EnquiryController extends Controller
         ]);
 
         $enquiry = Enquiry::create($validated);
+
+        Mail::to('thevisaengineers@gmail.com')->send(new EnquiryMail($enquiry));
 
         return response()->json([
             'status'  => true,
